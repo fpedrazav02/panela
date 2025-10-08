@@ -44,7 +44,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.3.0</version>
         <configuration>
-          <mainClass>io.github.fpedrazav02.panela.App</mainClass>
+          <mainClass>io.github.fpedrazav02.panela.Panela</mainClass>
         </configuration>
       </plugin>
 
@@ -63,7 +63,7 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>io.github.fpedrazav02.panela.App</mainClass>
+          <mainClass>io.github.fpedrazav02.panela.Panela</mainClass>
         </configuration>
       </plugin>
     </plugins>
