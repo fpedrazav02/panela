@@ -4,10 +4,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /** App */
-@Command(
-    name = "panela",
-    mixinStandardHelpOptions = true,
-    description = "Panela - A lightweight and extendable ETL runner")
+@Command(name = "panela", description = "Panela - A lightweight and extendable ETL runner")
 public class Panela implements Runnable {
   public static void main(String[] args) {
     int exitCode = new CommandLine(new Panela()).execute(args);
