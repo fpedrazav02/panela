@@ -71,6 +71,17 @@
         </executions>
         <configuration>
           <mainClass>io.github.fpedrazav02.panela.Panela</mainClass>
+          <imageName>panela</imageName>
+          <buildArgs>
+            <buildArg>-H:-CheckToolchain</buildArg>
+            <buildArg>-H:IncludeResources=templates/.*</buildArg>
+            <buildArg>--no-fallback</buildArg>
+          </buildArgs>
+          <resources>
+            <includes>
+              <include>templates/**</include>
+            </includes>
+          </resources>
         </configuration>
       </plugin>
     </plugins>
