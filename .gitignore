@@ -28,3 +28,18 @@ replay_pid*
 /.settings/
 /.project
 /.classpath
+
+
+#Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# Ignore Gradle caches and daemon logs
+.gradle/
+**/build/
+.gradle-cache/
+gradle-app.setting
+.gradle-daemon/
+.gradle-test-kit/
