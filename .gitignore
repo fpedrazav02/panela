@@ -43,3 +43,7 @@ build/
 gradle-app.setting
 .gradle-daemon/
 .gradle-test-kit/
+
+
+# Include idea
+.idea/
