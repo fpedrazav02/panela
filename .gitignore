@@ -47,3 +47,6 @@ gradle-app.setting
 
 # Include idea
 .idea/
+./result/
+result/
+.settings/
