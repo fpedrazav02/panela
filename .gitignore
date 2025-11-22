@@ -49,4 +49,5 @@ gradle-app.setting
 .idea/
 ./result/
 result/
+result
 .settings/
