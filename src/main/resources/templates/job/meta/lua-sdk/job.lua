@@ -13,7 +13,7 @@
 ---@field outputs? table<string, any>
 
 ---------------------------------------------------------
--- Job type definition (returned by job.define)
+-- Job type definition
 ---------------------------------------------------------
 
 ---@class Job
@@ -33,7 +33,7 @@ local job = {}
 ---@param spec JobSpec
 ---@return Job
 function job.define(spec)
-	-- Stub: implemented in runtime
+	-- Stub should be filled in runtime
 end
 
 return job

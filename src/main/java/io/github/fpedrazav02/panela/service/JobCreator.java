@@ -44,8 +44,8 @@ public class JobCreator {
         Files.createDirectories(runtimeDir);
 
         this.copyResourcesToFolder(
-                "templates/job/meta/lua-sdk/job.d.lua",
-                luaSdkDir.resolve("job.d.lua")
+                "templates/job/meta/lua-sdk/job.lua",
+                luaSdkDir.resolve("job.lua")
         );
 
         this.copyResourcesToFolder(
@@ -57,13 +57,15 @@ public class JobCreator {
         String jobContent = """
                 local job = require("job")
                 
-                return job.define {
+                local j = job.define {
                   name = "%s",
                   version = "0.1.0",
                   inputs = {},
                   transforms = {},
                   outputs = {}
                 }
+                
+                return j
                 """.formatted(jobName);
         Files.writeString(jobDir.resolve("job.lua"), jobContent);
 
