@@ -31,7 +31,7 @@
 
           installPhase = ''
             mkdir -p $out
-            cp target/panela-jar-with-dependencies.jar $out/panela.jar
+            cp target/panela.jar $out/panela.jar
           '';
         };
 
