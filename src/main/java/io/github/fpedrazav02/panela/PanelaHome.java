@@ -1,5 +1,7 @@
 package io.github.fpedrazav02.panela;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -7,10 +9,6 @@ import java.nio.file.Paths;
  * PanelaHome
  */
 public class PanelaHome {
-
-    // TODO: Posible refactor for Thread safety
-    private static PanelaHome uniqueInstance = null;
-
     private static final String ENV_VARIABLE = "PANELA_PATH";
     private final Path baseDir;
     private final Path jobDir;
@@ -23,13 +21,23 @@ public class PanelaHome {
 
         this.jobDir = this.baseDir.resolve("jobs");
         this.logDir = this.baseDir.resolve("logs");
+
+        //Try creating resources
+        try {
+            Files.createDirectories(baseDir);
+            Files.createDirectories(jobDir);
+            Files.createDirectories(logDir);
+        } catch (IOException e) {
+            throw new IllegalStateException("PanelaHome could not initialize correctly directories under: " + baseDir, e);
+        }
+    }
+
+    private static class PanelaHomeHolder {
+        private static final PanelaHome uniqueInstance = new PanelaHome();
     }
 
     public static PanelaHome getInstance() {
-        if (uniqueInstance == null) {
-            uniqueInstance = new PanelaHome();
-        }
-        return uniqueInstance;
+        return PanelaHomeHolder.uniqueInstance;
     }
 
     public Path getJobDir() {
