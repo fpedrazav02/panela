@@ -43,10 +43,15 @@ public class JobCreator {
         Files.createDirectories(luaSdkDir);
         Files.createDirectories(runtimeDir);
 
-        // Copy SDK Lua files
-        this.copyResourcesToFolder("templates.job/meta/lua-sdk/job.d.lua", luaSdkDir.resolve("job.d.lua"));
-        //Copy runtime files to Job
-        this.copyResourcesToFolder("templates.job/meta/runtime/job.lua", runtimeDir.resolve("job.lua"));
+        this.copyResourcesToFolder(
+                "templates/job/meta/lua-sdk/job.d.lua",
+                luaSdkDir.resolve("job.d.lua")
+        );
+
+        this.copyResourcesToFolder(
+                "templates/job/meta/runtime/job.lua",
+                runtimeDir.resolve("job.lua")
+        );
 
         // TODO: Pass this to a file
         String jobContent = """
@@ -65,16 +70,15 @@ public class JobCreator {
         // TODO: DB or file registration
     }
 
-    private void copyResourcesToFolder(String resourcePath, Path destinationFolder) throws IOException {
+    private void copyResourcesToFolder(String resourcePath, Path destinationFile) throws IOException {
         // Since it is a JAR compilation an inputStream is needed + try-with-resources cleans the stream
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
             if (inputStream == null) {
                 throw new IOException("Resource not found: " + resourcePath);
             }
 
-            Files.createDirectories(destinationFolder);
-            Files.copy(inputStream, destinationFolder.resolve(resourcePath), StandardCopyOption.REPLACE_EXISTING);
+            Files.createDirectories(destinationFile.getParent());
+            Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
         }
-
     }
 }
