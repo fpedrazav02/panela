@@ -70,6 +70,7 @@
 
                     <!-- remove ugly -jar-with-dependencies -->
                     <finalName>panela</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
 
                 <executions>
