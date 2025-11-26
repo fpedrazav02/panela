@@ -38,36 +38,50 @@ public class JobCreator {
         Path metaDir = jobDir.resolve(".meta");
         Path luaSdkDir = metaDir.resolve("lua-sdk");
         Path runtimeDir = metaDir.resolve("runtime");
+        Path transformDir = runtimeDir.resolve("transform");
 
         //Create Jobs directories
         Files.createDirectories(luaSdkDir);
         Files.createDirectories(runtimeDir);
 
+        // Create Job file
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("templates/job/job.lua")) {
+            if (inputStream == null) {
+                throw new IOException("Resource not found: templates/job/job.lua");
+            }
+
+            String template = new String(inputStream.readAllBytes());
+            String content = String.format(template, validName);
+
+            Files.writeString(jobDir.resolve("job.lua"), content);
+        }
+
+        // SDK files
+        this.copyResourcesToFolder(
+                "templates/job/meta/lua-sdk/transform.lua",
+                luaSdkDir.resolve("transform.lua")
+        );
         this.copyResourcesToFolder(
                 "templates/job/meta/lua-sdk/job.lua",
                 luaSdkDir.resolve("job.lua")
         );
 
+        // Runtime files
         this.copyResourcesToFolder(
                 "templates/job/meta/runtime/job.lua",
                 runtimeDir.resolve("job.lua")
         );
 
-        // TODO: Pass this to a file
-        String jobContent = """
-                local job = require("job")
-                
-                local j = job.define {
-                  name = "%s",
-                  version = "0.1.0",
-                  inputs = {},
-                  transforms = {},
-                  outputs = {}
-                }
-                
-                return j
-                """.formatted(jobName);
-        Files.writeString(jobDir.resolve("job.lua"), jobContent);
+        this.copyResourcesToFolder(
+                "templates/job/meta/runtime/transform.lua",
+                runtimeDir.resolve("transform.lua")
+        );
+
+        this.copyResourcesToFolder(
+                "templates/job/meta/runtime/transform/echo.lua",
+                transformDir.resolve("echo.lua")
+        );
+
 
         // TODO: DB or file registration
     }
@@ -78,9 +92,9 @@ public class JobCreator {
             if (inputStream == null) {
                 throw new IOException("Resource not found: " + resourcePath);
             }
-
             Files.createDirectories(destinationFile.getParent());
             Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
         }
     }
+
 }
