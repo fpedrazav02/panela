@@ -4,7 +4,7 @@ local transform = require("transform")
 
 -- Declare inputs that can be referenced in transformations
 local inputs = {
-  showMe = input.value { data = "Hello World!" }
+  showMe = input.value { data = "Hello World!", type = "string" }
 }
 
 -- Declare transformations that can be referenced in outputs
