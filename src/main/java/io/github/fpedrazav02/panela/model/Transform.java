@@ -4,8 +4,10 @@ import java.util.Map;
 
 public record Transform(
         String name,
-        String function,
+        String type,
         String from,
-        Map<String, String> params
+        String script,
+        String className,
+        Map<String, Object> config
 ) {
 }

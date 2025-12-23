@@ -1,6 +1,7 @@
 local job = require("job")
 local input = require("input")
 local transform = require("transform")
+local output = require("output")
 
 -- Declare inputs that can be referenced in transformations
 local inputs = {
@@ -10,7 +11,7 @@ local inputs = {
 -- Declare transformations that can be referenced in outputs
 local transforms = {
   showStep = transform.echo {
-    from = inputs.showMe,
+    from = "showMe",
     params = {},
   }
 }

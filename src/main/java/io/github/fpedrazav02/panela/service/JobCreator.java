@@ -67,6 +67,8 @@ public class JobCreator {
         // SDK files
         this.copyResourcesToFolder("templates/job/meta/lua-sdk/transform.lua", luaSdkDir.resolve("transform.lua"));
 
+        this.copyResourcesToFolder("templates/job/meta/lua-sdk/output.lua", luaSdkDir.resolve("output.lua"));
+
         this.copyResourcesToFolder("templates/job/meta/lua-sdk/input.lua", luaSdkDir.resolve("input.lua"));
 
         this.copyResourcesToFolder("templates/job/meta/lua-sdk/job.lua", luaSdkDir.resolve("job.lua"));

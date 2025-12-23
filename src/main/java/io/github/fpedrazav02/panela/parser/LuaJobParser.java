@@ -55,9 +55,16 @@ public class LuaJobParser {
             LuaTable inputData = next.arg(2).checktable();
 
             String type = inputData.get("type").tojstring();
-            String data = inputData.get("data").tojstring();
+            String script = inputData.get("script").isnil() ? null : inputData.get("script").tojstring();
+            String className = inputData.get("class").isnil() ? null : inputData.get("class").tojstring();
 
-            inputs.add(new Input(name, type, data));
+            Map<String, Object> config = new HashMap<>();
+            LuaValue configValue = inputData.get("config");
+            if (!configValue.isnil() && configValue.istable()) {
+                config = parseTable(configValue.checktable());
+            }
+
+            inputs.add(new Input(name, type, script, className, config));
         }
 
         return inputs;
@@ -74,24 +81,18 @@ public class LuaJobParser {
             String name = key.tojstring();
             LuaTable transformData = next.arg(2).checktable();
 
-            String function = transformData.get("function").tojstring();
-            String from = transformData.get("from").tojstring();
+            String type = transformData.get("type").tojstring();
+            String from = transformData.get("from").isnil() ? null : transformData.get("from").tojstring();
+            String script = transformData.get("script").isnil() ? null : transformData.get("script").tojstring();
+            String className = transformData.get("class").isnil() ? null : transformData.get("class").tojstring();
 
-            Map<String, String> params = new HashMap<>();
-
-            LuaValue paramsValue = transformData.get("params");
-            if (!paramsValue.isnil() && paramsValue.istable()) {
-                LuaValue paramsKey = LuaValue.NIL;
-                LuaTable paramsTable = paramsValue.checktable();
-
-                while (true) {
-                    Varargs paramsNext = paramsTable.next(paramsKey);
-                    if ((paramsKey = paramsNext.arg1()).isnil()) break;
-                    params.put(paramsKey.tojstring(), paramsNext.arg(2).tojstring());
-                }
+            Map<String, Object> config = new HashMap<>();
+            LuaValue configValue = transformData.get("config");
+            if (!configValue.isnil() && configValue.istable()) {
+                config = parseTable(configValue.checktable());
             }
 
-            transforms.add(new Transform(name, function, from, params));
+            transforms.add(new Transform(name, type, from, script, className, config));
         }
 
         return transforms;
@@ -108,12 +109,47 @@ public class LuaJobParser {
             String name = key.tojstring();
             LuaTable outputData = next.arg(2).checktable();
 
-            String destination = outputData.get("destination").tojstring();
-            String from = outputData.get("from").tojstring();
+            String type = outputData.get("type").tojstring();
+            String from = outputData.get("from").isnil() ? null : outputData.get("from").tojstring();
+            String script = outputData.get("script").isnil() ? null : outputData.get("script").tojstring();
+            String className = outputData.get("class").isnil() ? null : outputData.get("class").tojstring();
 
-            outputs.add(new Output(name, destination, from));
+            Map<String, Object> config = new HashMap<>();
+            LuaValue configValue = outputData.get("config");
+            if (!configValue.isnil() && configValue.istable()) {
+                config = parseTable(configValue.checktable());
+            }
+
+            outputs.add(new Output(name, type, from, script, className, config));
         }
 
         return outputs;
+    }
+
+    private Map<String, Object> parseTable(LuaTable table) {
+        Map<String, Object> map = new HashMap<>();
+        LuaValue key = LuaValue.NIL;
+
+        while (true) {
+            Varargs next = table.next(key);
+            if ((key = next.arg1()).isnil()) break;
+
+            String k = key.tojstring();
+            LuaValue v = next.arg(2);
+
+            if (v.isstring()) {
+                map.put(k, v.tojstring());
+            } else if (v.isint()) {
+                map.put(k, v.toint());
+            } else if (v.isnumber()) {
+                map.put(k, v.todouble());
+            } else if (v.isboolean()) {
+                map.put(k, v.toboolean());
+            } else if (v.istable()) {
+                map.put(k, parseTable(v.checktable()));
+            }
+        }
+
+        return map;
     }
 }
