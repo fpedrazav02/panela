@@ -1,16 +1,12 @@
 package io.github.fpedrazav02.panela.parser;
 
-import io.github.fpedrazav02.panela.parser.modules.InputModule;
-import io.github.fpedrazav02.panela.parser.modules.JobModule;
-import io.github.fpedrazav02.panela.parser.modules.OutputModule;
-import io.github.fpedrazav02.panela.parser.modules.TransformModule;
-import org.luaj.vm2.Globals;
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.Varargs;
+import io.github.fpedrazav02.panela.model.*;
+import io.github.fpedrazav02.panela.parser.modules.*;
+import org.luaj.vm2.*;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
 import java.nio.file.Path;
+import java.util.*;
 
 public class LuaJobParser {
 
@@ -22,7 +18,7 @@ public class LuaJobParser {
         return LuaJobParserHolder.uniqueInstance;
     }
 
-    public void parse(Path jobLuaPath) throws Exception {
+    public Job parse(Path jobLuaPath) throws Exception {
         Globals globals = JsePlatform.standardGlobals();
 
         // Register modules
@@ -40,25 +36,84 @@ public class LuaJobParser {
 
         String name = jobTable.get("name").tojstring();
         String version = jobTable.get("version").tojstring();
-        LuaTable inputs = jobTable.get("inputs").checktable();
-        LuaTable transforms = jobTable.get("transforms").checktable();
-        LuaTable outputs = jobTable.get("outputs").checktable();
+        List<Input> inputs = parseInputs(jobTable.get("inputs").checktable());
+        List<Transform> transforms = parseTransforms(jobTable.get("transforms").checktable());
+        List<Output> outputs = parseOutputs(jobTable.get("outputs").checktable());
 
-        // Print summary
-        System.out.println("📦 Job: " + name + " v" + version);
-        System.out.println("📥 Inputs: " + countKeys(inputs));
-        System.out.println("🔄 Transforms: " + countKeys(transforms));
-        System.out.println("📤 Outputs: " + countKeys(outputs));
+        return new Job(name, version, inputs, transforms, outputs);
     }
 
-    private int countKeys(LuaTable table) {
-        int count = 0;
+    private List<Input> parseInputs(LuaTable inputsTable) {
+        List<Input> inputs = new ArrayList<>();
         LuaValue key = LuaValue.NIL;
+
         while (true) {
-            Varargs next = table.next(key);
+            Varargs next = inputsTable.next(key);
             if ((key = next.arg1()).isnil()) break;
-            count++;
+
+            String name = key.tojstring();
+            LuaTable inputData = next.arg(2).checktable();
+
+            String type = inputData.get("type").tojstring();
+            String data = inputData.get("data").tojstring();
+
+            inputs.add(new Input(name, type, data));
         }
-        return count;
+
+        return inputs;
+    }
+
+    private List<Transform> parseTransforms(LuaTable transformsTable) {
+        List<Transform> transforms = new ArrayList<>();
+        LuaValue key = LuaValue.NIL;
+
+        while (true) {
+            Varargs next = transformsTable.next(key);
+            if ((key = next.arg1()).isnil()) break;
+
+            String name = key.tojstring();
+            LuaTable transformData = next.arg(2).checktable();
+
+            String function = transformData.get("function").tojstring();
+            String from = transformData.get("from").tojstring();
+
+            Map<String, String> params = new HashMap<>();
+
+            LuaValue paramsValue = transformData.get("params");
+            if (!paramsValue.isnil() && paramsValue.istable()) {
+                LuaValue paramsKey = LuaValue.NIL;
+                LuaTable paramsTable = paramsValue.checktable();
+
+                while (true) {
+                    Varargs paramsNext = paramsTable.next(paramsKey);
+                    if ((paramsKey = paramsNext.arg1()).isnil()) break;
+                    params.put(paramsKey.tojstring(), paramsNext.arg(2).tojstring());
+                }
+            }
+
+            transforms.add(new Transform(name, function, from, params));
+        }
+
+        return transforms;
+    }
+
+    private List<Output> parseOutputs(LuaTable outputsTable) {
+        List<Output> outputs = new ArrayList<>();
+        LuaValue key = LuaValue.NIL;
+
+        while (true) {
+            Varargs next = outputsTable.next(key);
+            if ((key = next.arg1()).isnil()) break;
+
+            String name = key.tojstring();
+            LuaTable outputData = next.arg(2).checktable();
+
+            String destination = outputData.get("destination").tojstring();
+            String from = outputData.get("from").tojstring();
+
+            outputs.add(new Output(name, destination, from));
+        }
+
+        return outputs;
     }
 }
