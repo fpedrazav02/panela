@@ -18,7 +18,15 @@ public class TransformModule extends TwoArgFunction {
     static class EchoFunction extends VarArgFunction {
         @Override
         public Varargs invoke(Varargs args) {
-            return args.checktable(1);
+            LuaTable config = args.checktable(1);
+
+            // Create result table with metadata
+            LuaTable result = new LuaTable();
+            result.set("function", LuaValue.valueOf("echo"));
+            result.set("from", config.get("from"));
+            result.set("params", config.get("params"));
+
+            return result;
         }
     }
 }
