@@ -27,6 +27,7 @@ public class TransformModule extends TwoArgFunction {
 
             // Create result table with metadata
             LuaTable result = new LuaTable();
+            result.set("type", LuaValue.valueOf("echo"));
             result.set("function", LuaValue.valueOf("echo"));
             result.set("from", config.get("from"));
             result.set("params", config.get("params"));

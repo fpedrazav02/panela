@@ -1,17 +1,16 @@
 package io.github.fpedrazav02.panela.commands;
 
 import io.github.fpedrazav02.panela.PanelaHome;
-import io.github.fpedrazav02.panela.dag.DAGPrinter;
 import io.github.fpedrazav02.panela.dag.JobDAG;
+import io.github.fpedrazav02.panela.runner.SimpleRunner;
 import io.github.fpedrazav02.panela.model.Job;
 import io.github.fpedrazav02.panela.parser.LuaJobParser;
 import picocli.CommandLine;
 
 import java.nio.file.Path;
-import java.util.List;
 
-@CommandLine.Command(name = "show", description = "Show job configuration")
-public class ShowCommand implements Runnable {
+@CommandLine.Command(name = "run", description = "Run a panela job")
+public class RunCommand implements Runnable {
 
     @CommandLine.Parameters(index = "0", description = "Name of the panela job")
     private String jobName;
@@ -29,10 +28,12 @@ public class ShowCommand implements Runnable {
 
             Job job = LuaJobParser.getInstance().parse(jobPath);
             JobDAG dag = new JobDAG(job);
-            new DAGPrinter(dag).print();
+
+            SimpleRunner runner = new SimpleRunner(dag);
+            runner.run();
 
         } catch (Exception e) {
-            System.err.println("Error parsing job: " + e.getMessage());
+            System.err.println("Error running job: " + e.getMessage());
             e.printStackTrace();
         }
     }
