@@ -14,7 +14,7 @@
         jdk = pkgs.jdk21;
         jre = pkgs.jre_minimal;
 
-        # Build-phase derivation: run Maven and produce the fat-jar
+        # Build JAR with Maven
         panelaJar = pkgs.stdenv.mkDerivation {
           pname = "panela-jar";
           version = "1.0";
@@ -35,30 +35,42 @@
           '';
         };
 
-        # Wrapper script to run with the minimal JRE
-        panelaScript = pkgs.writeShellScriptBin "panela" ''
-          exec ${jre}/bin/java -jar ${panelaJar}/panela.jar "$@"
-        '';
+        # Create full package with bin + lib
+        panela = pkgs.stdenv.mkDerivation {
+          pname = "panela";
+          version = "1.0";
+
+          dontUnpack = true;
+
+          installPhase = ''
+            mkdir -p $out/bin
+            mkdir -p $out/lib
+
+            # Copy JAR to lib
+            cp ${panelaJar}/panela.jar $out/lib/panela.jar
+
+            # Create wrapper script in bin
+            cat > $out/bin/panela <<EOF
+            #!/usr/bin/env bash
+            exec ${jre}/bin/java -jar $out/lib/panela.jar "\$@"
+            EOF
+
+            chmod +x $out/bin/panela
+          '';
+        };
 
       in
       {
+        # nix build → result/bin/panela
+        packages.default = panela;
 
-        ###############################
-        ##  nix build → result/bin/panela
-        ###############################
-        packages.default = panelaScript;
-
-        ###############################
-        ##  nix run . → runs the CLI
-        ###############################
+        # nix run → ejecuta directamente
         apps.default = {
           type = "app";
-          program = "${panelaScript}/bin/panela";
+          program = "${panela}/bin/panela";
         };
 
-        ###############################
-        ## nix develop → shell with JDK + Maven
-        ###############################
+        # nix develop → shell con JDK + Maven
         devShells.default = pkgs.mkShell {
           buildInputs = [
             jdk
