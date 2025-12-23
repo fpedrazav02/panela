@@ -5,7 +5,7 @@ function echo(spec)
         kind = "transform",
         type = "echo",
         from = spec.from,
-        message = spec.message,
+        params = spec.params,
     }
 end
 

@@ -11,7 +11,7 @@ local inputs = {
 local transforms = {
   showStep = transform.echo {
     from = inputs.showMe,
-    message = "[+]"
+    params = {},
   }
 }
 

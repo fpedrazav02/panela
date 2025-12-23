@@ -5,7 +5,7 @@ local transform = {}
 
 ---@class EchoSpec
 ---@field from table
----@field message string
+---@field params table
 
 --- Echo transform
 ---@param spec EchoSpec
