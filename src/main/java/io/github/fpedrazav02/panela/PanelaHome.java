@@ -51,4 +51,12 @@ public class PanelaHome {
     public Path getBaseDir() {
         return baseDir;
     }
+
+    /*
+     Based on a JobName (string) return a Path object for the lua interpreter to run
+     */
+    public Path getJobPath(String job) {
+        String JOB_BASE_NAME = "job.lua";
+        return this.jobDir.resolve(job).resolve(JOB_BASE_NAME);
+    }
 }
