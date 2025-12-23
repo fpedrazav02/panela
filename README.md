@@ -1,1 +1,2 @@
-# panela
+# Panela
+> An extendable ETL runner
