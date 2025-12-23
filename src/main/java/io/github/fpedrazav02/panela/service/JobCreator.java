@@ -36,6 +36,10 @@ public class JobCreator {
         // Resolve job directory, sdk, runtime, .meta
         Path jobDir = panelaHome.getJobDir().resolve(validName);
         Path metaDir = jobDir.resolve(".meta");
+        Path dirInputs = jobDir.resolve("inputs");
+        Path dirTransformations = jobDir.resolve("transforms");
+        Path dirOutputs = jobDir.resolve("outputs");
+        Path dirPlugins = jobDir.resolve("plugins");
         Path luaSdkDir = metaDir.resolve("lua-sdk");
         Path runtimeDir = metaDir.resolve("runtime");
         Path transformDir = runtimeDir.resolve("transform");
@@ -43,6 +47,10 @@ public class JobCreator {
         //Create Jobs directories
         Files.createDirectories(luaSdkDir);
         Files.createDirectories(runtimeDir);
+        Files.createDirectories(dirPlugins);
+        Files.createDirectories(dirOutputs);
+        Files.createDirectories(dirInputs);
+        Files.createDirectories(dirTransformations);
 
         // Create Job file
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("templates/job/job.lua")) {
@@ -57,36 +65,18 @@ public class JobCreator {
         }
 
         // SDK files
-        this.copyResourcesToFolder(
-                "templates/job/meta/lua-sdk/transform.lua",
-                luaSdkDir.resolve("transform.lua")
-        );
+        this.copyResourcesToFolder("templates/job/meta/lua-sdk/transform.lua", luaSdkDir.resolve("transform.lua"));
 
-        this.copyResourcesToFolder(
-                "templates/job/meta/lua-sdk/input.lua",
-                luaSdkDir.resolve("input.lua")
-        );
+        this.copyResourcesToFolder("templates/job/meta/lua-sdk/input.lua", luaSdkDir.resolve("input.lua"));
 
-        this.copyResourcesToFolder(
-                "templates/job/meta/lua-sdk/job.lua",
-                luaSdkDir.resolve("job.lua")
-        );
+        this.copyResourcesToFolder("templates/job/meta/lua-sdk/job.lua", luaSdkDir.resolve("job.lua"));
 
         // Runtime files
-        this.copyResourcesToFolder(
-                "templates/job/meta/runtime/job.lua",
-                runtimeDir.resolve("job.lua")
-        );
+        this.copyResourcesToFolder("templates/job/meta/runtime/job.lua", runtimeDir.resolve("job.lua"));
 
-        this.copyResourcesToFolder(
-                "templates/job/meta/runtime/transform.lua",
-                runtimeDir.resolve("transform.lua")
-        );
+        this.copyResourcesToFolder("templates/job/meta/runtime/transform.lua", runtimeDir.resolve("transform.lua"));
 
-        this.copyResourcesToFolder(
-                "templates/job/meta/runtime/transform/echo.lua",
-                transformDir.resolve("echo.lua")
-        );
+        this.copyResourcesToFolder("templates/job/meta/runtime/transform/echo.lua", transformDir.resolve("echo.lua"));
 
 
         // TODO: DB or file registration
