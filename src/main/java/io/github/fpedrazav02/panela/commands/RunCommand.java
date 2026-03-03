@@ -29,7 +29,7 @@ public class RunCommand implements Runnable {
             Job job = LuaJobParser.getInstance().parse(jobPath);
             JobDAG dag = new JobDAG(job);
 
-            SimpleRunner runner = new SimpleRunner(dag);
+            SimpleRunner runner = new SimpleRunner(dag, jobName);
             runner.run();
 
         } catch (Exception e) {

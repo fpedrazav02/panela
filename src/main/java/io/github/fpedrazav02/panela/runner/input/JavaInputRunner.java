@@ -5,7 +5,7 @@ import io.github.fpedrazav02.panela.model.Input;
 public class JavaInputRunner implements InputRunner {
 
     @Override
-    public Object execute(Input input) throws Exception {
+    public Object execute(Input input, String jobName) throws Exception {
         throw new UnsupportedOperationException("Java inputs not implemented yet");
     }
 

@@ -5,7 +5,7 @@ import io.github.fpedrazav02.panela.model.Input;
 public class ValueInputRunner implements InputRunner {
 
     @Override
-    public Object execute(Input input) {
+    public Object execute(Input input, String jobName) throws Exception {
         Object data = input.config().get("data");
         String type = (String) input.config().get("type");
 

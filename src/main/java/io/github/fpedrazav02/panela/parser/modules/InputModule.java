@@ -14,6 +14,7 @@ public class InputModule extends TwoArgFunction {
 
         // Built-in
         module.set("value", new ValueFunction());
+        module.set("file", new FileFunction());
 
         // Custom
         module.set("lua", new LuaInputFunction());
@@ -30,6 +31,20 @@ public class InputModule extends TwoArgFunction {
 
             LuaTable result = new LuaTable();
             result.set("type", LuaValue.valueOf("value"));
+            result.set("config", config);
+
+            return result;
+        }
+    }
+
+    // Built-in: input.value
+    static class FileFunction extends VarArgFunction {
+        @Override
+        public Varargs invoke(Varargs args) {
+            LuaTable config = args.checktable(1);
+
+            LuaTable result = new LuaTable();
+            result.set("type", LuaValue.valueOf("file"));
             result.set("config", config);
 
             return result;

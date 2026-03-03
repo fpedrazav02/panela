@@ -59,4 +59,8 @@ public class PanelaHome {
         String JOB_BASE_NAME = "job.lua";
         return this.jobDir.resolve(job).resolve(JOB_BASE_NAME);
     }
+
+    public Path getJobBaseDir(String job) {
+        return this.jobDir.resolve(job);
+    }
 }

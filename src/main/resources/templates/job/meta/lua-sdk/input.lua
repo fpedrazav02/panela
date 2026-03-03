@@ -12,6 +12,16 @@ local input = {}
 ---@return table
 function input.value(config) end
 
+---@alias FileType
+---| "json"
+---| "txt"
+---| "csv"
+
+---Built-in: Create a FileInput
+---@param config { path: string, type: FileType }
+---@return table
+function input.file(config) end
+
 ---Custom Lua: Load input from a Lua script
 ---@param config { script: string, config: table }
 ---@return table

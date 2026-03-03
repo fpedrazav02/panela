@@ -22,14 +22,16 @@ public class SimpleRunner implements DagRunner {
     private static final String DIM = "\u001B[2m";
 
     private final JobDAG dag;
+    private final String jobName;
     private final Map<String, Object> results = new HashMap<>();
 
     private final Map<String, InputRunner> inputRunners = new HashMap<>();
     private final Map<String, TransformRunner> transformRunners = new HashMap<>();
     private final Map<String, OutputRunner> outputRunners = new HashMap<>();
 
-    public SimpleRunner(JobDAG dag) {
+    public SimpleRunner(JobDAG dag, String jobName) {
         this.dag = dag;
+        this.jobName = jobName;
         registerRunners();
     }
 
@@ -38,6 +40,7 @@ public class SimpleRunner implements DagRunner {
         registerInputRunner(new ValueInputRunner());
         registerInputRunner(new LuaInputRunner());
         registerInputRunner(new JavaInputRunner());
+        registerInputRunner(new FileInputRunner());
 
         // Transform runners
         registerTransformRunner(new EchoTransformRunner());
@@ -103,7 +106,7 @@ public class SimpleRunner implements DagRunner {
             throw new Exception("No runner found for input type: " + input.type());
         }
 
-        Object result = runner.execute(input);
+        Object result = runner.execute(input, this.jobName);
         results.put(input.name(), result);
 
         System.out.printf("  %s→ Result:%s %s%n%n", DIM, RESET, result);
