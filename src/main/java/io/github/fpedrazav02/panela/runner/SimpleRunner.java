@@ -44,6 +44,7 @@ public class SimpleRunner implements DagRunner {
 
         // Transform runners
         registerTransformRunner(new EchoTransformRunner());
+        registerTransformRunner(new TableTransformRunner());
         registerTransformRunner(new LuaTransformRunner());
         registerTransformRunner(new JavaTransformRunner());
 
@@ -136,7 +137,7 @@ public class SimpleRunner implements DagRunner {
         Object inputData = results.get(output.from());
         System.out.printf("  %s← Input:%s %s%n", DIM, RESET, inputData);
 
-        runner.execute(output, inputData);
+        runner.execute(output, inputData, jobName);
         System.out.printf("  %s✓ Written%s%n%n", GREEN, RESET);
     }
 

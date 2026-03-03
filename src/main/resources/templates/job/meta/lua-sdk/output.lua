@@ -7,8 +7,14 @@
 
 local output = {}
 
----Built-in: Write to a file
----@param config { path: string, from: string }
+
+---@alias FileType
+---| "json"
+---| "txt"
+---| "csv"
+
+---Built-in: Write to a file (written under build/ on the Java side)
+---@param config { from: string, path?: string, format: FileType}
 ---@return table
 function output.file(config) end
 

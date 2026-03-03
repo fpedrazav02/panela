@@ -3,6 +3,7 @@ package io.github.fpedrazav02.panela.runner.input;
 import io.github.fpedrazav02.panela.PanelaHome;
 import io.github.fpedrazav02.panela.model.Input;
 import io.github.fpedrazav02.panela.model.types.FileType;
+import io.github.fpedrazav02.panela.runner.input.decoders.CsvTableDecoder;
 import io.github.fpedrazav02.panela.service.PathResolver;
 import io.github.fpedrazav02.panela.utils.Result;
 import io.github.fpedrazav02.panela.validator.impl.FileTypeValidator;
@@ -15,6 +16,8 @@ public class FileInputRunner implements InputRunner {
 
     @Override
     public Object execute(Input input, String jobName) throws Exception {
+        System.out.println("DEBUG input.config=" + input.config());
+        System.out.println("DEBUG rawPath=" + input.config().get("path") + " type=" + input.config().get("type"));
         PathResolver pathResolver = PathResolver.getInstance();
         PanelaHome home = PanelaHome.getInstance();
 
@@ -45,10 +48,15 @@ public class FileInputRunner implements InputRunner {
             }
         }
 
-        String content = Files.readString(validPath, StandardCharsets.UTF_8);
-        System.out.printf(content);
-
-        return content;
+        switch (type) {
+            case JSON, TXT -> {
+                return Files.readString(validPath, StandardCharsets.UTF_8);
+            }
+            case CSV -> {
+                return new CsvTableDecoder().decode(validPath);
+            }
+            default -> {throw new  IllegalArgumentException("Unsupported file type");}
+        }
     }
 
     @Override

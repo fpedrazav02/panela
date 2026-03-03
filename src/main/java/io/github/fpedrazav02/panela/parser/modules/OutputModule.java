@@ -13,7 +13,7 @@ public class OutputModule extends TwoArgFunction {
         LuaTable module = new LuaTable();
 
         // Built-in
-        module.set("file", new FileFunction()); // ✅ FALTABA ESTO
+        module.set("file", new FileFunction());
 
         // Custom
         module.set("lua", new LuaOutputFunction());
@@ -26,12 +26,26 @@ public class OutputModule extends TwoArgFunction {
     static class FileFunction extends VarArgFunction {
         @Override
         public Varargs invoke(Varargs args) {
-            LuaTable config = args.checktable(1);
+            LuaTable cfg = args.checktable(1);
+
+            LuaValue from = cfg.get("from");
+            if (from.isnil()) {
+                throw new IllegalArgumentException("output.file requires field: from");
+            }
+
+            // Pick only supported fields into config
+            LuaTable outCfg = new LuaTable();
+
+            LuaValue path = cfg.get("path");
+            if (!path.isnil()) outCfg.set("path", path);
+
+            LuaValue format = cfg.get("format");
+            if (!format.isnil()) outCfg.set("format", format);
 
             LuaTable result = new LuaTable();
             result.set("type", LuaValue.valueOf("file"));
-            result.set("from", config.get("from"));
-            result.set("config", config);
+            result.set("from", from);
+            result.set("config", outCfg);
 
             return result;
         }

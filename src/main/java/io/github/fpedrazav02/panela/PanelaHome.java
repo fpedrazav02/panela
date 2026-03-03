@@ -63,4 +63,8 @@ public class PanelaHome {
     public Path getJobBaseDir(String job) {
         return this.jobDir.resolve(job);
     }
+
+    public Path getBuildDir(String job) {
+        return this.getJobBaseDir(job).resolve("build");
+    }
 }

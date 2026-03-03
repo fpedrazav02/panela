@@ -17,14 +17,14 @@ public enum FileType {
         return ext;
     }
 
-    public static FileType from(Object o) {
-        if (o == null) throw new IllegalArgumentException("type is required");
-        String s = o.toString().trim().toLowerCase(Locale.ROOT);
+    public static FileType from(Object v) {
+        if (v == null) throw new IllegalArgumentException("Missing file type");
+        String s = v.toString().trim().toLowerCase();
         return switch (s) {
-            case "json" -> JSON;
-            case "txt"  -> TXT;
-            case "csv"  -> CSV;
-            default -> throw new IllegalArgumentException("Unsupported file type: " + o);
+            case "csv", "text/csv" -> CSV;
+            case "json", "application/json" -> JSON;
+            case "txt", "text", "text/plain" -> TXT;
+            default -> throw new IllegalArgumentException("Unknown file type: " + v);
         };
     }
 }

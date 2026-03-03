@@ -61,7 +61,12 @@ public class LuaJobParser {
             Map<String, Object> config = new HashMap<>();
             LuaValue configValue = inputData.get("config");
             if (!configValue.isnil() && configValue.istable()) {
-                config = parseTable(configValue.checktable());
+                Object parsed = parseValue(configValue);
+                if (parsed instanceof Map<?, ?> m) {
+                    config = (Map<String, Object>) m;
+                } else {
+                    config = new HashMap<>();
+                }
             }
 
             inputs.add(new Input(name, type, script, className, config));
@@ -89,7 +94,12 @@ public class LuaJobParser {
             Map<String, Object> config = new HashMap<>();
             LuaValue configValue = transformData.get("config");
             if (!configValue.isnil() && configValue.istable()) {
-                config = parseTable(configValue.checktable());
+                Object parsed = parseValue(configValue);
+                if (parsed instanceof Map<?, ?> m) {
+                    config = (Map<String, Object>) m;
+                } else {
+                    config = new HashMap<>();
+                }
             }
 
             transforms.add(new Transform(name, type, from, script, className, config));
@@ -117,13 +127,61 @@ public class LuaJobParser {
             Map<String, Object> config = new HashMap<>();
             LuaValue configValue = outputData.get("config");
             if (!configValue.isnil() && configValue.istable()) {
-                config = parseTable(configValue.checktable());
+                Object parsed = parseValue(configValue);
+                if (parsed instanceof Map<?, ?> m) {
+                    config = (Map<String, Object>) m;
+                } else {
+                    config = new HashMap<>();
+                }
             }
 
             outputs.add(new Output(name, type, from, script, className, config));
         }
 
         return outputs;
+    }
+
+    private Object parseValue(LuaValue v) {
+        if (v.isnil()) return null;
+
+        if (v.isstring()) return v.tojstring();
+        if (v.isint()) return v.toint();
+        if (v.isnumber()) return v.todouble();
+        if (v.isboolean()) return v.toboolean();
+
+        if (v.istable()) {
+            LuaTable t = v.checktable();
+            if (!t.get(1).isnil()) return parseList(t);
+            return parseMap(t);
+        }
+
+        // Fallback
+        return v.tojstring();
+    }
+
+    private List<Object> parseList(LuaTable table) {
+        List<Object> list = new ArrayList<>();
+        for (int i = 1; ; i++) {
+            LuaValue v = table.get(i);
+            if (v.isnil()) break;
+            list.add(parseValue(v));
+        }
+        return list;
+    }
+
+    private Map<String, Object> parseMap(LuaTable table) {
+        Map<String, Object> map = new HashMap<>();
+        LuaValue key = LuaValue.NIL;
+
+        while (true) {
+            Varargs next = table.next(key);
+            if ((key = next.arg1()).isnil()) break;
+
+            String k = key.tojstring();
+            LuaValue v = next.arg(2);
+            map.put(k, parseValue(v));
+        }
+        return map;
     }
 
     private Map<String, Object> parseTable(LuaTable table) {

@@ -36,6 +36,13 @@
             <artifactId>luaj-jse</artifactId>
             <version>3.0.1</version>
         </dependency>
+
+        <!-- CSV parser-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.10.0</version>
+        </dependency>
     </dependencies>
 
     <build>

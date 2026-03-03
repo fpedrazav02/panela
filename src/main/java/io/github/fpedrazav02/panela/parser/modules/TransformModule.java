@@ -11,7 +11,13 @@ public class TransformModule extends TwoArgFunction {
     @Override
     public LuaValue call(LuaValue modname, LuaValue env) {
         LuaTable module = new LuaTable();
+
+        // Builtin
         module.set("echo", new EchoFunction());
+
+        // Builtin - TABLES
+        module.set("trim", new TrimFunction());
+        module.set("drop_columns", new DropColumnsFunction());
 
         // Custom
         module.set("lua", new LuaTransformFunction());
@@ -35,6 +41,62 @@ public class TransformModule extends TwoArgFunction {
             return result;
         }
     }
+
+    static class TrimFunction extends VarArgFunction {
+        @Override
+        public Varargs invoke(Varargs args) {
+            LuaTable cfg = args.checktable(1);
+
+            LuaValue from = cfg.get("from");
+            if (from.isnil()) {
+                throw new IllegalArgumentException("transform.trim requires field: from");
+            }
+
+            LuaTable opConfig = new LuaTable();
+            opConfig.set("op", LuaValue.valueOf("trim_fields"));
+
+            LuaTable result = new LuaTable();
+            result.set("type", LuaValue.valueOf("table"));
+            result.set("from", from);
+            result.set("config", opConfig);
+
+            return result;
+        }
+    }
+
+    static class DropColumnsFunction extends VarArgFunction {
+        @Override
+        public Varargs invoke(Varargs args) {
+            LuaTable cfg = args.checktable(1);
+
+            LuaValue from = cfg.get("from");
+            if (from.isnil()) {
+                throw new IllegalArgumentException("transform.drop_columns requires field: from");
+            }
+
+            LuaValue columns = cfg.get("columns");
+            if (columns.isnil() || !columns.istable()) {
+                throw new IllegalArgumentException("transform.drop_columns requires field: columns (table/array)");
+            }
+
+            LuaValue failIfMissing = cfg.get("failIfMissing"); // optional
+
+            LuaTable opConfig = new LuaTable();
+            opConfig.set("op", LuaValue.valueOf("drop_columns"));
+            opConfig.set("columns", columns);
+            if (!failIfMissing.isnil()) {
+                opConfig.set("failIfMissing", failIfMissing);
+            }
+
+            LuaTable result = new LuaTable();
+            result.set("type", LuaValue.valueOf("table"));
+            result.set("from", from);
+            result.set("config", opConfig);
+
+            return result;
+        }
+    }
+
 
     // Custom: transform.lua { script = "transform/kafka.lua", config = {...} }
     static class LuaTransformFunction extends VarArgFunction {

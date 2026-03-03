@@ -5,7 +5,7 @@ import io.github.fpedrazav02.panela.model.Output;
 public class JavaOutputRunner implements OutputRunner {
 
     @Override
-    public void execute(Output output, Object inputData) throws Exception {
+    public void execute(Output output, Object inputData, String jobName) throws Exception {
         throw new UnsupportedOperationException("Java outputs not implemented yet");
     }
 
