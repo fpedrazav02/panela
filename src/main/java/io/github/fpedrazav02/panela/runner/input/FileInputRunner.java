@@ -1,6 +1,8 @@
 package io.github.fpedrazav02.panela.runner.input;
 
 import io.github.fpedrazav02.panela.PanelaHome;
+import io.github.fpedrazav02.panela.exceptions.custom.InvalidInputException;
+import io.github.fpedrazav02.panela.exceptions.custom.PathResolutionException;
 import io.github.fpedrazav02.panela.model.Input;
 import io.github.fpedrazav02.panela.model.types.FileType;
 import io.github.fpedrazav02.panela.runner.input.decoders.CsvTableDecoder;
@@ -16,47 +18,42 @@ public class FileInputRunner implements InputRunner {
 
     @Override
     public Object execute(Input input, String jobName) throws Exception {
-        System.out.println("DEBUG input.config=" + input.config());
-        System.out.println("DEBUG rawPath=" + input.config().get("path") + " type=" + input.config().get("type"));
         PathResolver pathResolver = PathResolver.getInstance();
         PanelaHome home = PanelaHome.getInstance();
 
-        // Get config
         String rawPath = (String) input.config().get("path");
+        if (rawPath == null || rawPath.isBlank()) {
+            throw new InvalidInputException("Input '" + input.name() + "': missing config field 'path'");
+        }
+
         FileType type = FileType.from(input.config().get("type"));
 
-        // Resolve jobFolder
         Path jobBaseDir = home.getJobBaseDir(jobName);
-
         Path resolved = pathResolver.resolve(rawPath, jobBaseDir);
         pathResolver.requireReadableFile(resolved);
 
-        // Validate extension
+        // Validate extension matches declared type
         FileTypeValidator validator = new FileTypeValidator(resolved, type);
         Result<Path> validation = validator.validate();
-
         if (!validation.isSuccess()) {
-            throw new IllegalArgumentException(validation.getError().orElse("Invalid file type"));
+            throw new InvalidInputException("Input '" + input.name() + "': "
+                    + validation.getError().orElse("file type mismatch"));
         }
         Path validPath = validation.getValue().orElseThrow();
 
-        // Validate rel path does not go outside jobdir
+        // Reject relative paths that escape the job directory
         if (!Path.of(rawPath).isAbsolute()) {
             Path base = jobBaseDir.toAbsolutePath().normalize();
             if (!resolved.startsWith(base)) {
-                throw new IllegalArgumentException("Relative path escapes job directory: " + rawPath);
+                throw new PathResolutionException(
+                        "Input '" + input.name() + "': path escapes job directory: " + rawPath);
             }
         }
 
-        switch (type) {
-            case JSON, TXT -> {
-                return Files.readString(validPath, StandardCharsets.UTF_8);
-            }
-            case CSV -> {
-                return new CsvTableDecoder().decode(validPath);
-            }
-            default -> {throw new  IllegalArgumentException("Unsupported file type");}
-        }
+        return switch (type) {
+            case JSON, TXT -> Files.readString(validPath, StandardCharsets.UTF_8);
+            case CSV       -> new CsvTableDecoder().decode(validPath);
+        };
     }
 
     @Override

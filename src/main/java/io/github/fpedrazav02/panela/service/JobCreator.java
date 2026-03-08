@@ -2,6 +2,7 @@ package io.github.fpedrazav02.panela.service;
 
 import io.github.fpedrazav02.panela.PanelaHome;
 import io.github.fpedrazav02.panela.exceptions.custom.InvalidJobName;
+import io.github.fpedrazav02.panela.exceptions.custom.JobAlreadyExistsException;
 import io.github.fpedrazav02.panela.utils.Result;
 import io.github.fpedrazav02.panela.validator.impl.JobNameValidator;
 
@@ -22,16 +23,21 @@ public class JobCreator {
         return new JobCreator(panelaHome);
     }
 
-    public void createJob(String jobName) throws IOException, InvalidJobName {
+    public void createJob(String jobName) throws IOException, InvalidJobName, JobAlreadyExistsException {
         // Check validations
         Result<String> validation = new JobNameValidator(jobName).validate();
-        // TODO: Include exists validation ¿?! DBs + Providers + Local
 
         if (!validation.isSuccess()) {
             throw new InvalidJobName(validation.getError().orElse("Invalid Job Name"));
         }
 
         String validName = validation.getValue().orElseThrow();
+
+        // Reject duplicates
+        Path existingJobDir = panelaHome.getJobDir().resolve(validName);
+        if (Files.exists(existingJobDir)) {
+            throw new JobAlreadyExistsException(validName);
+        }
 
         // Resolve job directory, sdk, runtime, .meta
         Path jobDir = panelaHome.getJobDir().resolve(validName);

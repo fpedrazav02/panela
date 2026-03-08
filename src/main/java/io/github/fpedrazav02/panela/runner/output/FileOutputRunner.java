@@ -1,9 +1,10 @@
 package io.github.fpedrazav02.panela.runner.output;
 
 import io.github.fpedrazav02.panela.PanelaHome;
+import io.github.fpedrazav02.panela.exceptions.custom.InvalidOutputException;
+import io.github.fpedrazav02.panela.exceptions.custom.PathResolutionException;
 import io.github.fpedrazav02.panela.model.Output;
 import io.github.fpedrazav02.panela.model.tabular.Table;
-import io.github.fpedrazav02.panela.service.PathResolver;
 import io.github.fpedrazav02.panela.runner.output.writters.CsvTableWriter;
 
 import java.nio.charset.StandardCharsets;
@@ -16,14 +17,12 @@ public class FileOutputRunner implements OutputRunner {
     @Override
     public void execute(Output output, Object inputData, String jobName) throws Exception {
         PanelaHome home = PanelaHome.getInstance();
-        PathResolver resolver = PathResolver.getInstance();
 
         Path buildDir = home.getBuildDir(jobName);
-
         Files.createDirectories(buildDir);
 
         Map<String, Object> cfg = output.config();
-        String format = (String) cfg.get("format");
+        String format  = (String) cfg.get("format");
         String rawPath = (String) cfg.get("path");
 
         Path outPath = resolveOutputPath(buildDir, rawPath, output.name(), format);
@@ -31,7 +30,8 @@ public class FileOutputRunner implements OutputRunner {
         if (inputData instanceof Table table) {
             String fmt = (format == null || format.isBlank()) ? "csv" : format;
             if (!fmt.equalsIgnoreCase("csv")) {
-                throw new IllegalArgumentException("Table output only supports format=csv for now. Got: " + fmt);
+                throw new InvalidOutputException(
+                        "Output '" + output.name() + "': Table data only supports format=csv, got '" + fmt + "'");
             }
             CsvTableWriter.write(table, outPath);
             return;
@@ -42,7 +42,8 @@ public class FileOutputRunner implements OutputRunner {
         Files.writeString(outPath, text, StandardCharsets.UTF_8);
     }
 
-    private Path resolveOutputPath(Path buildDir, String rawPath, String outputName, String format) {
+    private Path resolveOutputPath(Path buildDir, String rawPath, String outputName, String format)
+            throws PathResolutionException {
         String ext = inferExt(format, "txt");
 
         Path rel;
@@ -51,7 +52,8 @@ public class FileOutputRunner implements OutputRunner {
         } else {
             Path p = Path.of(rawPath);
             if (p.isAbsolute()) {
-                throw new IllegalArgumentException("Absolute output paths are not allowed. Use relative to build/: " + rawPath);
+                throw new PathResolutionException(
+                        "Absolute output paths are not allowed — use a path relative to build/: " + rawPath);
             }
             if (!p.getFileName().toString().contains(".")) {
                 p = Path.of(rawPath + "." + ext);
@@ -60,9 +62,8 @@ public class FileOutputRunner implements OutputRunner {
         }
 
         Path resolved = buildDir.resolve(rel).normalize();
-        Path base = buildDir.toAbsolutePath().normalize();
-        if (!resolved.toAbsolutePath().startsWith(base)) {
-            throw new IllegalArgumentException("Output path escapes build directory: " + rel);
+        if (!resolved.toAbsolutePath().startsWith(buildDir.toAbsolutePath().normalize())) {
+            throw new PathResolutionException("Output path escapes build directory: " + rel);
         }
         return resolved;
     }
@@ -70,10 +71,10 @@ public class FileOutputRunner implements OutputRunner {
     private String inferExt(String format, String defaultExt) {
         if (format == null || format.isBlank()) return defaultExt;
         return switch (format.toLowerCase()) {
-            case "csv" -> "csv";
-            case "txt" -> "txt";
+            case "csv"  -> "csv";
+            case "txt"  -> "txt";
             case "json" -> "json";
-            default -> defaultExt;
+            default     -> defaultExt;
         };
     }
 

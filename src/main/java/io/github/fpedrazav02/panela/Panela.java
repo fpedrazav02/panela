@@ -1,5 +1,7 @@
 package io.github.fpedrazav02.panela;
 
+import io.github.fpedrazav02.panela.commands.DeleteCommand;
+import io.github.fpedrazav02.panela.commands.ListCommand;
 import io.github.fpedrazav02.panela.commands.NewCommand;
 import io.github.fpedrazav02.panela.commands.RunCommand;
 import io.github.fpedrazav02.panela.commands.ShowCommand;
@@ -13,7 +15,7 @@ import picocli.CommandLine.Option;
 @Command(name = "panela",
         description = "Panela - A lightweight and extendable ETL runner",
         version = "0.0.1",
-        subcommands = {NewCommand.class, ShowCommand.class, RunCommand.class}
+        subcommands = {NewCommand.class, ListCommand.class, ShowCommand.class, RunCommand.class, DeleteCommand.class}
 )
 public class Panela implements Runnable {
 
@@ -37,7 +39,7 @@ public class Panela implements Runnable {
     public void run() {
         String border = "───────────────────────────────────────────────";
         System.out.println();
-        System.out.println(CYAN + "🎋  " + BOLD + "Panela v1.0.0" + RESET);
+        System.out.println(CYAN + BOLD + "Panela v1.0.0" + RESET);
         System.out.println(CYAN + border + RESET);
         System.out.println("A lightweight and extendable ETL runner\n");
         System.out.println(BOLD + "Usage" + RESET);
