@@ -51,3 +51,7 @@ gradle-app.setting
 result/
 result
 .settings/
+
+
+# Include panela
+build/

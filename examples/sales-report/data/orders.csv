@@ -1,0 +1,14 @@
+order_id,customer_id,customer_name,product,category,quantity,unit_price,country
+1001,C01,Alice Johnson,Laptop Pro,Electronics,1,1299.99,US
+1002,C02,Bob Smith,Wireless Mouse,Electronics,3,29.99,UK
+1003,C01,Alice Johnson,USB-C Hub,Electronics,2,49.99,US
+1004,C03,Carol White,Standing Desk,Furniture,1,599.00,DE
+1005,C04,David Brown,Laptop Pro,Electronics,1,1299.99,US
+1006,C02,Bob Smith,Laptop Pro,Electronics,1,1299.99,UK
+1007,C05,Eva Martinez,Office Chair,Furniture,2,349.00,ES
+1008,C03,Carol White,Wireless Mouse,Electronics,5,29.99,DE
+1009,C06,Frank Lee,Standing Desk,Furniture,1,599.00,US
+1010,C01,Alice Johnson,Office Chair,Furniture,1,349.00,US
+1011,C04,David Brown,USB-C Hub,Electronics,3,49.99,US
+1012,C05,Eva Martinez,Wireless Mouse,Electronics,2,29.99,ES
+

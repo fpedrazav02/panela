@@ -1,0 +1,12 @@
+id,name,department,salary,status
+1,Alice Johnson,Engineering,92000,active
+2,Bob Smith,Marketing,67000,inactive
+3,Carol White,Engineering,105000,active
+4,David Brown,HR,54000,active
+5,Eva Martinez,Engineering,88000,active
+6,Frank Lee,Marketing,71000,inactive
+7,Grace Kim,HR,51000,active
+8,Henry Davis,Engineering,97000,active
+9,Isla Wilson,Marketing,63000,active
+10,Jack Moore,HR,58000,inactive
+
