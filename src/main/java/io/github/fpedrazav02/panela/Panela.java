@@ -31,6 +31,8 @@ public class Panela implements Runnable {
     boolean versionRequested;
 
     public static void main(String[] args) {
+        PanelaHome.getInstance();
+
         int exitCode = new CommandLine(new Panela()).execute(args);
         System.exit(exitCode);
     }

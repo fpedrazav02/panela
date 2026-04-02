@@ -30,6 +30,8 @@ public class PanelaHome {
         } catch (IOException e) {
             throw new IllegalStateException("PanelaHome could not initialize correctly directories under: " + baseDir, e);
         }
+
+        System.setProperty("panela.log.dir", logDir.toAbsolutePath().toString());
     }
 
     private static class PanelaHomeHolder {

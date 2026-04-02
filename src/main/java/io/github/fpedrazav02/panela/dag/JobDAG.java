@@ -1,5 +1,6 @@
 package io.github.fpedrazav02.panela.dag;
 
+import io.github.fpedrazav02.panela.logging.PanelaLogger;
 import io.github.fpedrazav02.panela.model.*;
 
 import java.util.*;
@@ -13,7 +14,9 @@ public class JobDAG {
     public JobDAG(Job job) throws Exception {
         this.job = job;
         buildDAG();
+        PanelaLogger.dagBuilt(job.name(), nodes.size());
         validateDAG();
+        PanelaLogger.dagValidated(job.name());
     }
 
     private void buildDAG() {
@@ -99,8 +102,12 @@ public class JobDAG {
         order.add(node);
     }
 
-    public String getJobName(){
+    public String getJobName() {
         return this.job.name();
+    }
+
+    public String getJobVersion() {
+        return this.job.version();
     }
 
     public Node getNode(String name) {

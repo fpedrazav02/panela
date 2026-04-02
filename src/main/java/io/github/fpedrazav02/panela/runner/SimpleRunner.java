@@ -3,6 +3,7 @@ package io.github.fpedrazav02.panela.runner;
 import io.github.fpedrazav02.panela.PanelaHome;
 import io.github.fpedrazav02.panela.dag.JobDAG;
 import io.github.fpedrazav02.panela.exceptions.PanelaException;
+import io.github.fpedrazav02.panela.logging.PanelaLogger;
 import io.github.fpedrazav02.panela.model.*;
 import io.github.fpedrazav02.panela.model.tabular.Table;
 import io.github.fpedrazav02.panela.runner.input.*;
@@ -69,6 +70,9 @@ public class SimpleRunner implements DagRunner {
                 BOLD, GREEN, jobName, RESET, DIM, total, RESET);
         System.out.println();
 
+        PanelaLogger.jobStart(jobName, dag.getJobVersion(), total);
+        long jobStart = System.currentTimeMillis();
+
         int step = 1;
         for (String nodeName : executionOrder) {
             JobDAG.Node node = dag.getNode(nodeName);
@@ -77,13 +81,17 @@ public class SimpleRunner implements DagRunner {
                 executeNode(node);
             } catch (PanelaException e) {
                 System.err.printf("  %s  error: %s%s%n%n", RED, e.getMessage(), RESET);
+                PanelaLogger.jobFailed(jobName, System.currentTimeMillis() - jobStart, e);
                 throw e;
             } catch (Exception e) {
                 String msg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
                 System.err.printf("  %s  error: %s%s%n%n", RED, msg, RESET);
+                PanelaLogger.jobFailed(jobName, System.currentTimeMillis() - jobStart, e);
                 throw e;
             }
         }
+
+        PanelaLogger.jobSuccess(jobName, System.currentTimeMillis() - jobStart);
 
         String buildDir = PanelaHome.getInstance().getBuildDir(jobName).toString();
         System.out.printf("%s✔ Done%s  %s→ %s%s%n%n", GREEN + BOLD, RESET, DIM, buildDir, RESET);
@@ -112,9 +120,18 @@ public class SimpleRunner implements DagRunner {
         if (runner == null) {
             throw new IllegalArgumentException("No runner for input type '" + input.type() + "'");
         }
-        Object result = runner.execute(input, this.jobName);
-        results.put(input.name(), result);
-        System.out.printf("  %s↳ %s%s%n%n", DIM, summarize(result), RESET);
+        PanelaLogger.nodeStart(jobName, input.name(), "INPUT");
+        long start = System.currentTimeMillis();
+        try {
+            Object result = runner.execute(input, this.jobName);
+            long duration = System.currentTimeMillis() - start;
+            results.put(input.name(), result);
+            PanelaLogger.nodeSuccess(jobName, input.name(), "INPUT", duration, summarize(result));
+            System.out.printf("  %s↳ %s%s%n%n", DIM, summarize(result), RESET);
+        } catch (Exception e) {
+            PanelaLogger.nodeFailed(jobName, input.name(), "INPUT", System.currentTimeMillis() - start, e);
+            throw e;
+        }
     }
 
     private void executeTransform(Transform transform) throws Exception {
@@ -127,9 +144,18 @@ public class SimpleRunner implements DagRunner {
             throw new IllegalArgumentException(
                     "Transform '" + transform.name() + "' references unknown source '" + transform.from() + "'");
         }
-        Object result = runner.execute(transform, inputData);
-        results.put(transform.name(), result);
-        System.out.printf("  %s↳ %s → %s%s%n%n", DIM, summarize(inputData), summarize(result), RESET);
+        PanelaLogger.nodeStart(jobName, transform.name(), "TRANSFORM");
+        long start = System.currentTimeMillis();
+        try {
+            Object result = runner.execute(transform, inputData);
+            long duration = System.currentTimeMillis() - start;
+            results.put(transform.name(), result);
+            PanelaLogger.nodeSuccess(jobName, transform.name(), "TRANSFORM", duration, summarize(result));
+            System.out.printf("  %s↳ %s → %s%s%n%n", DIM, summarize(inputData), summarize(result), RESET);
+        } catch (Exception e) {
+            PanelaLogger.nodeFailed(jobName, transform.name(), "TRANSFORM", System.currentTimeMillis() - start, e);
+            throw e;
+        }
     }
 
     private void executeOutput(Output output) throws Exception {
@@ -142,8 +168,17 @@ public class SimpleRunner implements DagRunner {
             throw new IllegalArgumentException(
                     "Output '" + output.name() + "' references unknown source '" + output.from() + "'");
         }
-        runner.execute(output, inputData, jobName);
-        System.out.printf("  %s↳ written  (%s)%s%n%n", DIM, summarize(inputData), RESET);
+        PanelaLogger.nodeStart(jobName, output.name(), "OUTPUT");
+        long start = System.currentTimeMillis();
+        try {
+            runner.execute(output, inputData, jobName);
+            long duration = System.currentTimeMillis() - start;
+            PanelaLogger.nodeSuccess(jobName, output.name(), "OUTPUT", duration, summarize(inputData));
+            System.out.printf("  %s↳ written  (%s)%s%n%n", DIM, summarize(inputData), RESET);
+        } catch (Exception e) {
+            PanelaLogger.nodeFailed(jobName, output.name(), "OUTPUT", System.currentTimeMillis() - start, e);
+            throw e;
+        }
     }
 
     /** Single-line human summary of a result value. */
