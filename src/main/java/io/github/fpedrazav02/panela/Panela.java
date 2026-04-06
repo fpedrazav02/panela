@@ -1,5 +1,6 @@
 package io.github.fpedrazav02.panela;
 
+import io.github.fpedrazav02.panela.commands.CacheCommand;
 import io.github.fpedrazav02.panela.commands.DeleteCommand;
 import io.github.fpedrazav02.panela.commands.ListCommand;
 import io.github.fpedrazav02.panela.commands.NewCommand;
@@ -15,7 +16,7 @@ import picocli.CommandLine.Option;
 @Command(name = "panela",
         description = "Panela - A lightweight and extendable ETL runner",
         version = "0.0.1",
-        subcommands = {NewCommand.class, ListCommand.class, ShowCommand.class, RunCommand.class, DeleteCommand.class}
+        subcommands = {NewCommand.class, ListCommand.class, ShowCommand.class, RunCommand.class, DeleteCommand.class, CacheCommand.class}
 )
 public class Panela implements Runnable {
 

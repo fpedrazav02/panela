@@ -3,7 +3,7 @@ package io.github.fpedrazav02.panela.commands;
 import io.github.fpedrazav02.panela.PanelaHome;
 import io.github.fpedrazav02.panela.dag.JobDAG;
 import io.github.fpedrazav02.panela.exceptions.PanelaException;
-import io.github.fpedrazav02.panela.runner.SimpleRunner;
+import io.github.fpedrazav02.panela.runner.CachingRunner;
 import io.github.fpedrazav02.panela.model.Job;
 import io.github.fpedrazav02.panela.parser.LuaJobParser;
 import picocli.CommandLine;
@@ -35,7 +35,7 @@ public class RunCommand implements Runnable {
         try {
             Job job = LuaJobParser.getInstance().parse(jobPath);
             JobDAG dag = new JobDAG(job);
-            new SimpleRunner(dag, jobName).run();
+            new CachingRunner(dag, jobName).run();
         } catch (PanelaException e) {
             System.err.printf("%n%serror:%s %s%n%n", RED + BOLD, RESET, e.getMessage());
         } catch (Exception e) {

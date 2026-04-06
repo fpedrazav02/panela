@@ -1,6 +1,8 @@
 package io.github.fpedrazav02.panela.commands;
 
 import io.github.fpedrazav02.panela.PanelaHome;
+import io.github.fpedrazav02.panela.cache.CacheStore;
+import io.github.fpedrazav02.panela.db.RunRepository;
 import io.github.fpedrazav02.panela.exceptions.custom.JobNotFoundException;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -50,12 +52,14 @@ public class DeleteCommand implements Runnable {
             }
 
             deleteRecursively(jobDir);
+            new CacheStore(jobName).cleanJob();
+            new RunRepository().deleteByJobName(jobName);
 
             System.out.printf("%nJob '%s' deleted.%n%n", jobName);
 
         } catch (JobNotFoundException e) {
             System.err.printf("%n%serror:%s %s%n%n", RED + BOLD, RESET, e.getMessage());
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.printf("%n%serror:%s Could not delete job '%s': %s%n%n",
                     RED + BOLD, RESET, jobName, e.getMessage());
         }

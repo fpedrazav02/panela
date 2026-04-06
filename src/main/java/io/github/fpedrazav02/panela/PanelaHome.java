@@ -69,4 +69,12 @@ public class PanelaHome {
     public Path getBuildDir(String job) {
         return this.getJobBaseDir(job).resolve("build");
     }
+
+    public Path getCacheDir(String job) {
+        return this.baseDir.resolve("cache").resolve(job);
+    }
+
+    public Path getDbPath() {
+        return this.baseDir.resolve("panela.db");
+    }
 }
